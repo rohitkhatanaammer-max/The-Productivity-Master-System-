@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Productivity Master System</title>
+<style>
+:root {
+  --gold: #c9972c;
+  --ink: #16213e;
+  --warm: #e8d5b7;
+  --accent: #d4a843;
+  --red: #c0392b;
+  --green: #1a6b4a;
+  --bg: #faf7f0;
+  --cyan: #00c9e4;
+  --purple: #6c3fa0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:#2c2c2c;overflow-x:hidden;}
+
+/* ── NAV ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(22,33,62,.97);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.5rem;border-bottom:2px solid var(--gold);}
+#nav .logo{color:var(--gold);font-size:.85rem;letter-spacing:.1em;font-family:sans-serif;font-weight:700;}
+#nav .chapters-btn{background:none;border:1px solid var(--gold);color:var(--gold);padding:.3rem .8rem;border-radius:4px;cursor:pointer;font-family:sans-serif;font-size:.8rem;}
+#progress-bar{position:fixed;top:42px;left:0;height:3px;background:var(--gold);z-index:100;transition:width .3s;width:0;}
+
+/* ── SIDEBAR ── */
+#sidebar{position:fixed;top:0;left:-290px;width:280px;height:100vh;background:var(--ink);z-index:200;transition:left .3s;overflow-y:auto;padding:1rem 0;}
+#sidebar.open{left:0;}
+#sidebar h3{color:var(--gold);padding:1rem 1.2rem .5rem;font-size:.8rem;letter-spacing:.12em;font-family:sans-serif;}
+#sidebar a{display:block;padding:.5rem 1.2rem;color:#bbb;font-family:sans-serif;font-size:.8rem;text-decoration:none;border-left:3px solid transparent;transition:all .2s;}
+#sidebar a:hover,#sidebar a.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,151,44,.08);}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;}
+#overlay.on{display:block;}
+
+/* ── COVER ── */
+#cover{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(170deg,#0d0d1a 0%,#1a1a2e 40%,#16213e 100%);padding:4rem 1.5rem;text-align:center;position:relative;overflow:hidden;}
+#cover svg.bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.cover-content{position:relative;z-index:2;}
+.cover-eyebrow{font-family:sans-serif;font-size:.7rem;letter-spacing:.25em;color:var(--gold);text-transform:uppercase;margin-bottom:1.5rem;}
+.cover-title{font-size:clamp(2rem,6vw,3.8rem);color:#fff;line-height:1.15;font-weight:normal;}
+.cover-title span{color:var(--gold);}
+.cover-sub{color:#9090b0;font-family:sans-serif;font-size:.92rem;max-width:460px;margin:1.4rem auto;line-height:1.75;}
+.cover-quote{font-style:italic;color:var(--warm);font-size:1rem;margin:2rem auto;max-width:390px;border-left:3px solid var(--gold);padding-left:1rem;text-align:left;}
+.start-btn{margin-top:2.5rem;background:var(--gold);color:var(--ink);border:none;padding:.85rem 2.2rem;border-radius:4px;font-family:sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;letter-spacing:.05em;transition:all .2s;}
+.start-btn:hover{background:var(--accent);transform:translateY(-2px);}
+
+/* ── CHAPTERS ── */
+.chapter{padding:5rem 1.5rem 4rem;max-width:760px;margin:0 auto;}
+.chapter-number{font-family:sans-serif;font-size:.7rem;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin-bottom:.5rem;}
+.chapter-title{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.2;color:var(--ink);font-weight:normal;margin-bottom:2rem;border-bottom:1px solid var(--gold);padding-bottom:1rem;}
+.chapter-quote{font-style:italic;color:var(--ink);font-size:1.05rem;margin:1.5rem 0 2rem;padding-left:1.2rem;border-left:4px solid var(--gold);}
+.chapter-body p{font-size:1.03rem;line-height:1.9;margin-bottom:1.2rem;color:#2c2c2c;}
+.chapter-body p strong{color:var(--ink);}
+.chapter-sep{border:none;height:1px;background:linear-gradient(to right,transparent,#d4c89a,transparent);margin:0;}
+
+/* ── STORY BOX ── */
+.story-box{background:var(--ink);border-radius:8px;padding:1.8rem 2rem;margin:2rem 0;border-left:5px solid var(--gold);}
+.story-label{font-family:sans-serif;font-size:.68rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;margin-bottom:.8rem;}
+.story-box p{color:#d8d0c4;font-size:.98rem;line-height:1.8;margin-bottom:.8rem;}
+.story-box p:last-child{margin-bottom:0;}
+
+/* ── STEPS ── */
+.steps{margin:2rem 0;}
+.step{display:flex;gap:1.1rem;margin-bottom:1.4rem;padding:1.1rem 1.4rem;background:#fff;border-radius:8px;border:1px solid #e0d8c8;}
+.step-num{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#fff;font-family:sans-serif;font-weight:700;font-size:.88rem;display:flex;align-items:center;justify-content:center;}
+.step-content h4{font-family:sans-serif;font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:.3rem;}
+.step-content p{font-size:.9rem;color:#555;line-height:1.6;margin:0;}
+
+/* ── HIGHLIGHT ── */
+.highlight{background:#fffbef;border:1px solid var(--gold);border-radius:8px;padding:1.3rem 1.5rem;margin:2rem 0;}
+.highlight-label{font-family:sans-serif;font-size:.68rem;letter-spacing:.15em;color:var(--gold);font-weight:700;margin-bottom:.5rem;}
+.highlight p{font-size:.95rem;line-height:1.7;color:var(--ink);margin:0;}
+
+/* ── ILLUSTRATION ── */
+.illustration{margin:2.5rem 0;border-radius:12px;overflow:hidden;background:#fff;border:1px solid #e0d8c8;}
+.illustration svg{display:block;width:100%;max-width:100%;height:auto;}
+
+/* ── TABLE ── */
+.system-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-family:sans-serif;font-size:.86rem;}
+.system-table th{background:var(--ink);color:var(--gold);padding:.65rem .9rem;text-align:left;font-weight:600;}
+.system-table td{padding:.6rem .9rem;border-bottom:1px solid #e0d8c8;color:#333;}
+.system-table tr:nth-child(even) td{background:#faf7f0;}
+
+/* ── SCIENCE BOX ── */
+.sci-box{background:var(--ink);border-radius:8px;padding:1.4rem 1.6rem;margin:2rem 0;border-left:4px solid var(--cyan);position:relative;}
+.sci-label{font-family:sans-serif;font-size:.65rem;letter-spacing:.18em;color:var(--cyan);text-transform:uppercase;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+.sci-label::before{content:'⚗';font-size:.9rem;}
+.sci-box p{color:#b8ccd8;font-size:.93rem;line-height:1.75;margin:0;}
+.sci-box p + p{margin-top:.5rem;}
+.sci-cite{display:block;margin-top:.8rem;font-family:sans-serif;font-size:.72rem;color:var(--cyan);opacity:.8;font-style:normal;}
+
+/* ── PROFESSOR CARD ── */
+.prof-card{display:flex;gap:1rem;align-items:flex-start;background:#fff;border-radius:8px;padding:1rem 1.2rem;margin:1.4rem 0;border-left:4px solid var(--gold);box-shadow:0 1px 8px rgba(0,0,0,.06);}
+.prof-icon{flex-shrink:0;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--ink),var(--gold));display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+.prof-info .prof-name{font-family:sans-serif;font-size:.88rem;font-weight:700;color:var(--ink);}
+.prof-info .prof-role{font-family:sans-serif;font-size:.72rem;color:var(--gold);margin-bottom:.3rem;}
+.prof-info .prof-quote{font-size:.85rem;color:#555;line-height:1.6;font-style:italic;}
+
+/* ── FINAL ── */
+#final{background:var(--ink);padding:5rem 2rem;text-align:center;}
+#final h2{color:var(--gold);font-size:1.9rem;font-weight:normal;margin-bottom:1.2rem;}
+#final p{color:#aaa;font-family:sans-serif;max-width:500px;margin:0 auto 1.2rem;line-height:1.7;font-size:.93rem;}
+#final .final-quote{font-style:italic;color:var(--warm);font-size:1.05rem;border-top:1px solid rgba(201,151,44,.4);padding-top:1.5rem;margin-top:1.5rem;}
+
+/* ── ANIMATIONS ── */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes spinSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 4px var(--gold))}50%{filter:drop-shadow(0 0 12px var(--gold))}}
+.float{animation:float 4s ease-in-out infinite;}
+.float2{animation:float 5s ease-in-out infinite 1s;}
+.float3{animation:float 3.5s ease-in-out infinite .5s;}
+.pulse{animation:pulse 3s ease-in-out infinite;}
+.spin{animation:spinSlow 40s linear infinite;transform-origin:center;}
+.spin-r{animation:spinSlow 25s linear infinite reverse;transform-origin:center;}
+.glow-anim{animation:glow 2.5s ease-in-out infinite;}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FLOW SECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#flow-section{background:linear-gradient(160deg,#070c18 0%,#0d1e38 55%,#180a28 100%);padding:5rem 1.5rem;position:relative;overflow:hidden;}
+#flow-section .inner{max-width:760px;margin:0 auto;position:relative;z-index:2;}
+.flow-tag{font-family:sans-serif;font-size:.65rem;letter-spacing:.28em;color:var(--cyan);text-transform:uppercase;margin-bottom:.7rem;}
+.flow-heading{font-size:clamp(1.8rem,5vw,3rem);color:#fff;font-weight:normal;line-height:1.2;margin-bottom:.8rem;}
+.flow-word{color:var(--cyan);display:inline-block;animation:flowPulse 2.8s ease-in-out infinite;}
+@keyframes flowPulse{0%,100%{text-shadow:0 0 10px rgba(0,201,228,.4)}50%{text-shadow:0 0 30px rgba(0,201,228,.9),0 0 60px rgba(0,201,228,.3)}}
+.flow-intro{color:#8aa8c4;font-family:sans-serif;font-size:1rem;line-height:1.75;max-width:600px;margin-bottom:2rem;}
+.flow-intro strong{color:#d0e8f0;}
+
+/* River visual */
+.flow-river{position:relative;height:130px;border-radius:14px;overflow:hidden;margin:1.8rem 0;background:linear-gradient(135deg,#050d1a,#0a1828,#130622);}
+.river-stripe{position:absolute;inset:0;background:repeating-linear-gradient(100deg,transparent 0,rgba(0,201,228,.05) 18px,rgba(0,201,228,.1) 36px,transparent 54px);width:200%;animation:riverFlow 2.5s linear infinite;}
+@keyframes riverFlow{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.river-stripe2{position:absolute;inset:0;background:repeating-linear-gradient(85deg,transparent 0,rgba(108,63,160,.04) 25px,rgba(108,63,160,.09) 50px,transparent 75px);width:200%;animation:riverFlow 3.8s linear infinite reverse;opacity:.7;}
+/* floating dots */
+.rdot{position:absolute;border-radius:50%;animation:rdotFlow linear infinite;}
+@keyframes rdotFlow{from{left:-2%;opacity:0}10%{opacity:1}90%{opacity:.8}to{left:102%;opacity:0}}
+.river-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:3;}
+.river-label .rl-tag{font-family:sans-serif;font-size:.6rem;letter-spacing:.25em;color:rgba(0,201,228,.6);text-transform:uppercase;margin-bottom:2px;}
+.river-label .rl-word{font-size:1.6rem;color:#fff;font-weight:normal;animation:flowPulse 2.8s ease-in-out infinite;}
+.river-label .rl-sub{font-family:sans-serif;font-size:.68rem;color:rgba(0,201,228,.5);margin-top:2px;}
+
+/* Zones */
+.flow-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin:1.6rem 0;}
+.fzone{border-radius:10px;padding:1.1rem 1rem;text-align:center;}
+.fzone.z-anxiety{background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);}
+.fzone.z-flow{background:rgba(0,201,228,.1);border:1px solid rgba(0,201,228,.45);animation:zonePulse 3s ease-in-out infinite;}
+@keyframes zonePulse{0%,100%{box-shadow:0 0 0 rgba(0,201,228,0)}50%{box-shadow:0 0 20px rgba(0,201,228,.15)}}
+.fzone.z-bore{background:rgba(120,120,120,.08);border:1px solid rgba(150,150,150,.25);}
+.fzone-icon{font-size:1.4rem;margin-bottom:.4rem;}
+.fzone-name{font-family:sans-serif;font-size:.8rem;font-weight:700;margin-bottom:.3rem;}
+.fzone.z-anxiety .fzone-name{color:#e87070;}
+.fzone.z-flow .fzone-name{color:var(--cyan);}
+.fzone.z-bore .fzone-name{color:#888;}
+.fzone-desc{font-family:sans-serif;font-size:.72rem;line-height:1.5;}
+.fzone.z-anxiety .fzone-desc{color:#b08080;}
+.fzone.z-flow .fzone-desc{color:#88b8c8;}
+.fzone.z-bore .fzone-desc{color:#888;}
+
+/* flow enter steps */
+.flow-steps{margin:1.5rem 0;}
+.fstep{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:1rem;padding:.9rem 1rem;background:rgba(255,255,255,.03);border:1px solid rgba(0,201,228,.15);border-radius:8px;}
+.fstep-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--cyan);color:#05101e;font-family:sans-serif;font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;}
+.fstep-content h5{font-family:sans-serif;font-size:.85rem;font-weight:700;color:#d0e8f0;margin-bottom:.2rem;}
+.fstep-content p{font-family:sans-serif;font-size:.82rem;color:#7a9ab8;line-height:1.55;margin:0;}
+
+.flow-sci-box{background:rgba(0,20,40,.7);border:1px solid rgba(0,201,228,.3);border-radius:8px;padding:1.2rem 1.4rem;margin:1.5rem 0;}
+.flow-sci-box p{font-family:sans-serif;font-size:.88rem;color:#88b8c8;line-height:1.7;margin:0;}
+.flow-sci-box p strong{color:var(--cyan);}
+.flow-sci-cite{display:block;margin-top:.6rem;font-size:.7rem;color:rgba(0,201,228,.55);font-style:italic;}
+
+/* wave separator */
+.flow-wave-bottom{position:absolute;bottom:0;left:0;right:0;line-height:0;pointer-events:none;}
+.flow-wave-bottom svg{width:100%;height:40px;}
+@keyframes waveDrift{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.wave-path-anim{animation:waveDrift 10s linear infinite;}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MOBILE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media(max-width:640px){
+  .chapter{padding:4rem 1.1rem 3rem;}
+  .story-box{padding:1.3rem 1.2rem;}
+  .step{flex-direction:column;gap:.6rem;}
+  .step-num{margin-bottom:0;}
+  .prof-card{flex-direction:column;gap:.7rem;}
+  .flow-zones{grid-template-columns:1fr;}
+  .system-table{font-size:.78rem;}
+  .system-table th,.system-table td{padding:.5rem .6rem;}
+  .sci-box{padding:1.1rem 1.2rem;}
+  #flow-section{padding:3.5rem 1.1rem;}
+  .flow-river{height:110px;}
+}
+/* Reduce motion for battery saving devices */
+@media(prefers-reduced-motion:reduce){
+  .float,.float2,.float3,.pulse,.spin,.spin-r,.glow-anim,
+  .flow-word,.rdot,.river-stripe,.river-stripe2,.fzone.z-flow,
+  .wave-path-anim,#progress-bar{animation:none !important;transition:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div id="nav">
+  <div class="logo">⚡ THE PRODUCTIVITY MASTER SYSTEM</div>
+  <button class="chapters-btn" onclick="toggleSidebar()">☰ Chapters</button>
+</div>
+<div id="progress-bar"></div>
+
+<div id="overlay" onclick="toggleSidebar()"></div>
+<div id="sidebar">
+  <h3>CONTENTS</h3>
+  <a href="#cover">Cover</a>
+  <a href="#ch1">1 — What Is True Productivity</a>
+  <a href="#ch2">2 — The Single-Point Focus Method</a>
+  <a href="#ch3">3 — Master Your Mind</a>
+  <a href="#ch4">4 — Design Your Daily System</a>
+  <a href="#ch5">5 — The Deep Work Method</a>
+  <a href="#flow-section">✦ The Flow State</a>
+  <a href="#ch6">6 — Breaking Paralysis</a>
+  <a href="#ch7">7 — Your Productive Environment</a>
+  <a href="#ch8">8 — Time & Energy Mastery</a>
+  <a href="#ch9">9 — The Consistency Code</a>
+  <a href="#ch10">10 — Your Complete Master System</a>
+</div>
+
+<!-- ══════════════ COVER ══════════════ -->
+<section id="cover">
+  <svg class="bg" viewBox="0 0 800 700" preserveAspectRatio="xMidYMid slice">
+    <g class="pulse">
+      <circle cx="80" cy="80" r="1.5" fill="#c9972c" opacity=".6"/>
+      <circle cx="200" cy="40" r="1" fill="#fff" opacity=".4"/>
+      <circle cx="650" cy="60" r="1.5" fill="#c9972c" opacity=".5"/>
+      <circle cx="720" cy="120" r="1" fill="#fff" opacity=".3"/>
+      <circle cx="700" cy="300" r="1.5" fill="#fff" opacity=".5"/>
+      <circle cx="760" cy="500" r="1.5" fill="#c9972c" opacity=".4"/>
+    </g>
+    <g transform="translate(400,350)" class="spin"><circle r="200" fill="none" stroke="#c9972c" stroke-width=".5" stroke-dasharray="4 8" opacity=".3"/></g>
+    <g transform="translate(400,350)" class="spin-r"><circle r="150" fill="none" stroke="#c9972c" stroke-width=".5" stroke-dasharray="2 6" opacity=".4"/></g>
+    <g transform="translate(400,350)" class="float" style="animation-duration:6s">
+      <ellipse rx="30" ry="70" fill="none" stroke="#c9972c" stroke-width=".8" opacity=".5" transform="rotate(0)"/>
+      <ellipse rx="30" ry="70" fill="none" stroke="#c9972c" stroke-width=".8" opacity=".5" transform="rotate(45)"/>
+      <ellipse rx="30" ry="70" fill="none" stroke="#c9972c" stroke-width=".8" opacity=".5" transform="rotate(90)"/>
+      <ellipse rx="30" ry="70" fill="none" stroke="#c9972c" stroke-width=".8" opacity=".5" transform="rotate(135)"/>
+      <circle r="12" fill="#c9972c" opacity=".35"/>
+    </g>
+  </svg>
+  <div class="cover-content">
+    <div class="cover-eyebrow">A Complete Blueprint for Focused Living</div>
+    <h1 class="cover-title">The Productivity<br><span>Master System</span></h1>
+    <p class="cover-sub">From ancient Asian wisdom to modern science — a step-by-step guide to mastering your attention, entering the <em>Flow</em> state, and doing work that truly matters.</p>
+    <blockquote class="cover-quote">"The mind can be your greatest friend or your greatest enemy. Which one it becomes depends entirely on you."</blockquote>
+    <button class="start-btn" onclick="document.getElementById('ch1').scrollIntoView({behavior:'smooth'})">Begin Reading ↓</button>
+  </div>
+</section>
+
+<!-- ══════════════ CH 1 ══════════════ -->
+<section id="ch1" class="chapter">
+  <div class="chapter-number">Chapter One</div>
+  <h2 class="chapter-title">What Is True Productivity?</h2>
+  <blockquote class="chapter-quote">"The mind can be your greatest friend or your greatest enemy."</blockquote>
+  <div class="chapter-body">
+    <p>Most people confuse <strong>being busy with being productive.</strong> They fill their hours with tasks, notifications, and meetings — and at the end of the day, feel strangely empty. They did a lot, but accomplished little of real meaning.</p>
+    <p>True productivity is not about doing more. It is the ability to direct your full attention toward meaningful work — and to do that work with excellence, consistency, and calm.</p>
+    <div class="illustration">
+      <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="290" height="200" rx="8" fill="#fff8f0" stroke="#e0d0b0" stroke-width=".5"/>
+        <text x="165" y="48" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#c0392b">BUSY vs PRODUCTIVE</text>
+        <text x="100" y="75" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">BUSY</text>
+        <g class="pulse" style="animation-duration:1.5s">
+          <line x1="50" y1="95" x2="150" y2="95" stroke="#f0b8b8" stroke-width="12" stroke-linecap="round"/>
+          <line x1="60" y1="115" x2="140" y2="115" stroke="#f0c8a8" stroke-width="8" stroke-linecap="round"/>
+          <line x1="55" y1="135" x2="148" y2="135" stroke="#f0d0a0" stroke-width="10" stroke-linecap="round"/>
+          <line x1="65" y1="155" x2="138" y2="155" stroke="#f0b8b8" stroke-width="6" stroke-linecap="round"/>
+          <line x1="52" y1="175" x2="145" y2="175" stroke="#f0c8a8" stroke-width="9" stroke-linecap="round"/>
+        </g>
+        <text x="340" y="125" text-anchor="middle" font-family="sans-serif" font-size="22" fill="#c9972c">→</text>
+        <rect x="370" y="20" width="290" height="200" rx="8" fill="#f0faf5" stroke="#a0d8b8" stroke-width=".5"/>
+        <text x="515" y="48" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1a6b4a">PRODUCTIVE</text>
+        <rect x="410" y="85" width="190" height="18" rx="4" fill="#c9972c" class="float" style="animation-duration:3s"/>
+        <rect x="410" y="115" width="120" height="18" rx="4" fill="#1a6b4a" class="float2"/>
+        <rect x="410" y="145" width="160" height="18" rx="4" fill="#c9972c" opacity=".7" class="float3"/>
+        <text x="504" y="97" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff" font-weight="600">Deep Work</text>
+        <text x="469" y="127" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff" font-weight="600">Rest</text>
+        <text x="489" y="157" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff" font-weight="600">Creative Work</text>
+        <text x="515" y="195" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">Fewer tasks. Higher quality. Real results.</text>
+      </svg>
+    </div>
+    <p>The ancient teacher said it plainly: <em>"Set your heart on the work alone, not on its reward."</em> Productive people focus on the quality of what they do right now. That clarity of action is what creates lasting results.</p>
+
+    <div class="sci-box">
+      <div class="sci-label">Harvard Business School</div>
+      <p>Researchers tracked thousands of working professionals over 15 years. Their finding was clear: the people who performed best weren't the busiest — they were the ones making meaningful progress in work that mattered to them.</p>
+      <cite class="sci-cite">— Prof. Teresa Amabile · Harvard Business School</cite>
+    </div>
+
+    <div class="highlight">
+      <div class="highlight-label">🔑 THE CORE SHIFT</div>
+      <p>Stop measuring productivity by hours worked. Start measuring it by <strong>meaningful output</strong> — the work that moves your goals forward and leaves you feeling accomplished rather than drained.</p>
+    </div>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 2 ══════════════ -->
+<section id="ch2" class="chapter">
+  <div class="chapter-number">Chapter Two</div>
+  <h2 class="chapter-title">The Single-Point Focus Method</h2>
+  <blockquote class="chapter-quote">"Excellence comes through focused action — like an arrow, your aim must be singular."</blockquote>
+  <div class="chapter-body">
+    <p>There is a principle taught in every tradition of excellence: <strong>the most powerful person in any field is not the one who works the most, but the one who focuses the most.</strong> A scattered mind produces scattered work. A focused mind produces masterwork.</p>
+    <div class="story-box">
+      <div class="story-label">📖 A Story of Perfect Focus</div>
+      <p>Long ago, a great teacher gathered his students and tied a wooden bird to a tree branch. He asked each student to tell him what they saw. One said, "I see the tree, the branch, the bird, the sky." Another described the leaves, the bark, and the bird.</p>
+      <p>Then came a young warrior named Arjuna. His teacher asked the same question. Arjuna replied: <em>"I see only the eye of the bird."</em></p>
+      <p>His teacher smiled and said, "Then shoot." Arjuna's arrow flew true. <strong>Greatness is not about what you see. It is about what you choose not to see.</strong></p>
+    </div>
+    <div class="illustration">
+      <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="340" cy="110" r="90" fill="none" stroke="#f0d0d0" stroke-width="1.5"/>
+        <circle cx="340" cy="110" r="65" fill="none" stroke="#f0c0a0" stroke-width="1.5"/>
+        <circle cx="340" cy="110" r="40" fill="none" stroke="#d4a843" stroke-width="2"/>
+        <circle cx="340" cy="110" r="18" fill="#c9972c" opacity=".8" class="pulse"/>
+        <circle cx="340" cy="110" r="6" fill="#fff" class="glow-anim"/>
+        <line x1="60" y1="110" x2="316" y2="110" stroke="#c9972c" stroke-width="2.5" class="pulse"/>
+        <polygon points="316,104 330,110 316,116" fill="#c9972c"/>
+        <text x="340" y="170" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#aaa">Distractions</text>
+        <text x="340" y="148" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c9972c">Priority work</text>
+        <text x="340" y="118" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff" font-weight="700">ONE GOAL</text>
+        <text x="100" y="60" font-family="sans-serif" font-size="10" fill="#ccc" text-decoration="line-through">Emails</text>
+        <text x="540" y="60" font-family="sans-serif" font-size="10" fill="#ccc" text-decoration="line-through">Social media</text>
+        <text x="80" y="170" font-family="sans-serif" font-size="10" fill="#ccc" text-decoration="line-through">Busy tasks</text>
+        <text x="530" y="170" font-family="sans-serif" font-size="10" fill="#ccc" text-decoration="line-through">Notifications</text>
+      </svg>
+    </div>
+    <p>Every morning, before you open your phone or email, identify the <strong>one most important task</strong> of the day. This is your bull's-eye. Everything else is noise until that task is complete.</p>
+
+    <div class="sci-box">
+      <div class="sci-label">MIT · Princeton Neuroscience Institute</div>
+      <p>MIT researchers confirmed: the brain cannot actually multitask. Trying to do two things at once drops your performance by 40%. And after a single interruption, it takes over 23 minutes to fully return to the work you were doing.</p>
+      <cite class="sci-cite">— Prof. Earl Miller, MIT · Dr. Gloria Mark, UC Irvine</cite>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Name Your Bull's-Eye the Night Before</h4><p>Ask: "What is the ONE thing that, if I complete it tomorrow, will make the whole day feel successful?" Write it down. Wake up knowing exactly where to aim.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Begin with the Bull's-Eye — No Exceptions</h4><p>Within 90 minutes of waking, start your most important task. No email. No social media. The bull's-eye comes first, always.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Protect Your Focus Window</h4><p>90 minutes of total focus. Phone on Do Not Disturb. One browser tab. One document. One goal. Let nothing else exist.</p></div></div>
+    </div>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 3 ══════════════ -->
+<section id="ch3" class="chapter">
+  <div class="chapter-number">Chapter Three</div>
+  <h2 class="chapter-title">Master Your Mind — The Chariot Within</h2>
+  <blockquote class="chapter-quote">"Practice and discipline alone can control the restless mind. This is certain."</blockquote>
+  <div class="chapter-body">
+    <p>Your mind is not your enemy. But an untrained mind will act like one. It will pull you toward distraction, toward comfort, toward delay. <strong>The secret is not to fight the mind — it is to become its master.</strong></p>
+    <div class="story-box">
+      <div class="story-label">📖 The Chariot and the Charioteer</div>
+      <p>Picture a chariot racing across an open field. The five horses pulling it are your five senses — wild, powerful, always hungry for stimulation. A distracted driver lets them scatter in five directions. The chariot goes nowhere.</p>
+      <p>But a skilled charioteer holds the reins with calm authority. The horses' power becomes useful. The chariot flies forward.</p>
+      <p><strong>The charioteer is your intellect.</strong> When you train it, you harness the energy of your senses. That harnessed energy is what productive people call deep focus.</p>
+    </div>
+    <div class="illustration">
+      <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(340,130)" class="float" style="animation-duration:5s">
+          <circle r="80" fill="none" stroke="#c9972c" stroke-width="3" opacity=".9"/>
+          <circle r="8" fill="#c9972c"/>
+          <line x1="0" y1="-80" x2="0" y2="80" stroke="#c9972c" stroke-width="1.5" opacity=".7"/>
+          <line x1="-80" y1="0" x2="80" y2="0" stroke="#c9972c" stroke-width="1.5" opacity=".7"/>
+          <line x1="-57" y1="-57" x2="57" y2="57" stroke="#c9972c" stroke-width="1.5" opacity=".7"/>
+          <line x1="57" y1="-57" x2="-57" y2="57" stroke="#c9972c" stroke-width="1.5" opacity=".7"/>
+        </g>
+        <text x="340" y="28" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1a6b4a" font-weight="600">INTELLECT (Charioteer)</text>
+        <text x="340" y="245" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">Body (Chariot)</text>
+        <text x="80" y="135" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c0392b">Senses</text>
+        <text x="600" y="135" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c0392b">Desires</text>
+        <text x="340" y="126" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c9972c" font-weight="700">YOUR</text>
+        <text x="340" y="138" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c9972c" font-weight="700">FOCUS</text>
+      </svg>
+    </div>
+
+    <div class="sci-box">
+      <div class="sci-label">Harvard Medical School</div>
+      <p>Harvard researchers scanned the brains of people who practiced daily stillness. After just 8 weeks, the part of the brain responsible for focus and attention had literally grown thicker — visible on a brain scan.</p>
+      <cite class="sci-cite">— Dr. Sara Lazar · Massachusetts General Hospital, Harvard Medical School</cite>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>10-Minute Morning Stillness</h4><p>Before anything else — sit still for 10 minutes. No phone. No input. Just observe your thoughts without acting on them. This trains the charioteer.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>The Urge Pause</h4><p>When you feel the urge to check your phone or switch tasks — pause for 10 seconds. Breathe. Then consciously choose. This pause is the reins in your hands.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>The Daily Recharge</h4><p>Physical movement — even a 20-minute walk — resets the mental state. A tired body is an unruly horse. A moved body is a ready one.</p></div></div>
+    </div>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 4 ══════════════ -->
+<section id="ch4" class="chapter">
+  <div class="chapter-number">Chapter Four</div>
+  <h2 class="chapter-title">Design Your Daily System</h2>
+  <blockquote class="chapter-quote">"A person of steady discipline rises early, works deeply, rests truly, and repeats — this is the path to mastery."</blockquote>
+  <div class="chapter-body">
+    <p>Discipline is not about willpower. It is about <strong>design</strong>. When your environment and schedule are structured properly, the right actions become effortless — and the wrong ones become difficult.</p>
+    <p>A strong daily routine removes the exhausting work of making decisions all day. You do not decide when to work — you simply begin, because that is what the system says.</p>
+    <div class="illustration">
+      <svg viewBox="0 0 680 170" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="80" width="600" height="20" rx="4" fill="#f0ece0" stroke="#e0d0b0" stroke-width=".5"/>
+        <rect x="40" y="80" width="120" height="20" rx="4" fill="#c9972c" class="float3"/>
+        <text x="100" y="73" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">5–7am</text>
+        <text x="100" y="94" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff" font-weight="700">RISE</text>
+        <rect x="165" y="80" width="180" height="20" rx="4" fill="#1a1a2e" class="float"/>
+        <text x="255" y="73" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">7–10am</text>
+        <text x="255" y="94" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c9972c" font-weight="700">DEEP WORK</text>
+        <rect x="350" y="80" width="100" height="20" rx="4" fill="#e8d5b7"/>
+        <text x="400" y="73" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">10–12pm</text>
+        <text x="400" y="94" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555" font-weight="700">ADMIN</text>
+        <rect x="455" y="80" width="100" height="20" rx="4" fill="#d4a843" opacity=".6" class="float2"/>
+        <text x="505" y="73" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">2–4pm</text>
+        <text x="505" y="94" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff" font-weight="700">LEARNING</text>
+        <rect x="560" y="80" width="80" height="20" rx="4" fill="#1a6b4a"/>
+        <text x="600" y="73" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">8pm</text>
+        <text x="600" y="94" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff" font-weight="700">WIND DOWN</text>
+        <text x="340" y="130" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">Your energy is highest in the morning — protect it for your most important work.</text>
+        <text x="340" y="148" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c9972c" font-weight="600">The structured day eliminates decision fatigue.</text>
+      </svg>
+    </div>
+
+    <div class="sci-box">
+      <div class="sci-label">Florida State University</div>
+      <p>Researchers studied judges making parole decisions. Early in the day, they approved roughly 65% of cases. By mid-afternoon, approvals dropped to near zero — same judges, same cases. The only thing that changed was their mental energy. Structure your day before it structures you.</p>
+      <cite class="sci-cite">— Prof. Roy Baumeister · Florida State University</cite>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Morning Block (First 90 Minutes After Rising)</h4><p>Stillness → Body movement → Your most important work. In that order, every day. No screens until the body has moved and the mind is still.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Deep Work Block (90 Minutes, Undisturbed)</h4><p>Schedule it for when your energy peaks — usually 8–11am. One task. Phone away. Timer running.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Admin & Communication Window</h4><p>Email, messages, meetings — batch them into one window after your deep work. Reactive work should never lead your day.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Evening Shutdown Ritual</h4><p>At a fixed time, close all work. Write tomorrow's bull's-eye. Spend 10 minutes in reflection. Then stop — rest is recovery for tomorrow's performance.</p></div></div>
+    </div>
+    <table class="system-table">
+      <tr><th>Time Block</th><th>Activity</th><th>Rule</th></tr>
+      <tr><td>5:30 – 6:00 am</td><td>Stillness / breathing</td><td>No phone, no noise</td></tr>
+      <tr><td>6:00 – 6:30 am</td><td>Movement (walk/exercise)</td><td>Body before screen</td></tr>
+      <tr><td>7:00 – 9:00 am</td><td>Deep Work (Bull's-eye task)</td><td>Zero interruptions</td></tr>
+      <tr><td>9:00 – 11:00 am</td><td>Secondary work / projects</td><td>Minimal distractions</td></tr>
+      <tr><td>11:00 – 12:00 pm</td><td>Email / messages / admin</td><td>Batched, not scattered</td></tr>
+      <tr><td>2:00 – 4:00 pm</td><td>Learning / reading</td><td>Build skills daily</td></tr>
+      <tr><td>8:00 – 9:00 pm</td><td>Wind down + plan tomorrow</td><td>Screens off by 9pm</td></tr>
+    </table>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 5 ══════════════ -->
+<section id="ch5" class="chapter">
+  <div class="chapter-number">Chapter Five</div>
+  <h2 class="chapter-title">The Deep Work Method</h2>
+  <blockquote class="chapter-quote">"Those who practice single-pointed attention produce work of extraordinary quality — while others merely produce volume."</blockquote>
+  <div class="chapter-body">
+    <p><strong>Deep work</strong> is focused, uninterrupted, cognitively demanding work performed at full capacity. It creates real value and builds real skill. If you can produce 3–4 hours of genuine deep work daily, you will outperform most people around you — regardless of raw talent.</p>
+    <div class="illustration">
+      <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+        <rect x="80" y="160" width="200" height="30" rx="4" fill="#f0d0d0" stroke="#e0b0b0" stroke-width=".5"/>
+        <text x="180" y="179" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c0392b" font-weight="600">Shallow Work (8 hrs)</text>
+        <rect x="80" y="100" width="200" height="55" rx="4" fill="#f0d0d0" opacity=".6"/>
+        <text x="180" y="132" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Output: Medium</text>
+        <text x="180" y="148" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Feeling: Exhausted</text>
+        <text x="340" y="155" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#c9972c" font-weight="700">VS</text>
+        <rect x="400" y="160" width="200" height="30" rx="4" fill="#1a1a2e" stroke="#c9972c" stroke-width="1"/>
+        <text x="500" y="179" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c9972c" font-weight="600">Deep Work (3 hrs)</text>
+        <rect x="400" y="40" width="200" height="115" rx="4" fill="#1a6b4a" class="float" style="animation-duration:4s"/>
+        <text x="500" y="90" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff">Output: Exceptional</text>
+        <text x="500" y="108" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#fff">Feeling: Accomplished</text>
+        <text x="500" y="126" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c9972c" font-weight="700">Skill-building: YES</text>
+      </svg>
+    </div>
+
+    <div class="sci-box">
+      <div class="sci-label">Florida State University — Elite Performance Research</div>
+      <p>Researchers studied the world's best performers — chess grandmasters, concert pianists, Olympic athletes, surgeons. None of them worked long hours on autopilot. They worked in short, intense, deeply focused sessions — never more than 4 to 5 hours of real depth per day. After that, performance collapsed. Depth beats duration, every time.</p>
+      <cite class="sci-cite">— Prof. K. Anders Ericsson · Florida State University</cite>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>The 90-Minute Focus Session</h4><p>Start with a 2-minute ritual: clear your desk, put your phone away, write your session goal, set your timer. Then begin.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>When Distraction Arises — Note and Return</h4><p>Keep a notepad beside you. When a thought pops up, write it down without acting on it. Then return to your work.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Build Your Focus Gradually</h4><p>Start with 25 minutes of focus. Add 5 minutes each week. Within two months you will be working in 90-minute flows effortlessly.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Real Rest Between Sessions</h4><p>A 20-minute break means no screens. Walk, stretch, look at nature. A brain that truly rests performs significantly better in the next session.</p></div></div>
+    </div>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ FLOW STATE ══════════════ -->
+<section id="flow-section">
+  <div class="inner">
+    <div class="flow-tag">Special Concept — Ancient Wisdom Meets Modern Science</div>
+    <h2 class="flow-heading">The <span class="flow-word">Flow</span> State</h2>
+    <p class="flow-intro">
+      You already know what Flow feels like. It was that time you were so locked into something — a game, a piece of music, drawing, cooking, writing — that you looked up and two hours had disappeared. You weren't tired. You weren't bored. You were <strong>alive in the work.</strong><br><br>
+      That is Flow. And it's not an accident. It can be entered on purpose.
+    </p>
+
+    <!-- Animated River -->
+    <div class="flow-river" role="img" aria-label="Flow state animation">
+      <div class="river-stripe"></div>
+      <div class="river-stripe2"></div>
+      <!-- dots -->
+      <div class="rdot" style="width:7px;height:7px;background:rgba(0,201,228,.9);box-shadow:0 0 8px rgba(0,201,228,.7);top:35%;animation-duration:3.2s;animation-delay:0s;"></div>
+      <div class="rdot" style="width:5px;height:5px;background:rgba(0,201,228,.6);top:55%;animation-duration:4.1s;animation-delay:.8s;"></div>
+      <div class="rdot" style="width:8px;height:8px;background:rgba(108,63,160,.8);box-shadow:0 0 8px rgba(108,63,160,.6);top:25%;animation-duration:3.7s;animation-delay:1.4s;"></div>
+      <div class="rdot" style="width:4px;height:4px;background:rgba(0,201,228,.5);top:65%;animation-duration:2.9s;animation-delay:.3s;"></div>
+      <div class="rdot" style="width:6px;height:6px;background:rgba(0,201,228,.75);box-shadow:0 0 6px rgba(0,201,228,.5);top:45%;animation-duration:4.5s;animation-delay:1.9s;"></div>
+      <div class="rdot" style="width:5px;height:5px;background:rgba(108,63,160,.6);top:72%;animation-duration:3.4s;animation-delay:.6s;"></div>
+      <div class="rdot" style="width:6px;height:6px;background:rgba(255,255,255,.35);top:18%;animation-duration:5.1s;animation-delay:2.2s;"></div>
+      <div class="river-label">
+        <div class="rl-tag">You are here</div>
+        <div class="rl-word">Flow</div>
+        <div class="rl-sub">Time disappears. Work becomes effortless.</div>
+      </div>
+    </div>
+
+    <!-- Science -->
+    <div class="flow-sci-box">
+      <p>A psychologist named <strong>Mihaly Csikszentmihalyi</strong> spent 30 years studying thousands of people — surgeons, chess players, musicians, rock climbers — across the world. He found they all described this same state. He named it <strong>Flow</strong>. His research showed: people in Flow produce 5 times more than they normally do — in the same amount of time.</p>
+      <cite class="flow-sci-cite">— Prof. Mihaly Csikszentmihalyi · University of Chicago / Claremont Graduate University</cite>
+    </div>
+
+    <!-- Zones -->
+    <p style="font-family:sans-serif;font-size:.8rem;letter-spacing:.15em;color:rgba(0,201,228,.7);text-transform:uppercase;margin:1.5rem 0 .6rem;">Where Are You Right Now?</p>
+    <div class="flow-zones">
+      <div class="fzone z-anxiety">
+        <div class="fzone-icon">😰</div>
+        <div class="fzone-name">Anxiety Zone</div>
+        <div class="fzone-desc">Task is too hard. You feel stuck. Break it into smaller pieces.</div>
+      </div>
+      <div class="fzone z-flow">
+        <div class="fzone-icon">⚡</div>
+        <div class="fzone-name">Flow Zone ← Be Here</div>
+        <div class="fzone-desc">Challenge matches your skill. Time vanishes. Work flows.</div>
+      </div>
+      <div class="fzone z-bore">
+        <div class="fzone-icon">😴</div>
+        <div class="fzone-name">Boredom Zone</div>
+        <div class="fzone-desc">Too easy. You drift. Raise the difficulty or try something new.</div>
+      </div>
+    </div>
+
+    <!-- How to enter Flow -->
+    <p style="font-family:sans-serif;font-size:.8rem;letter-spacing:.15em;color:rgba(0,201,228,.7);text-transform:uppercase;margin:1.5rem 0 .6rem;">How to Enter Flow — 4 Conditions</p>
+    <div class="flow-steps">
+      <div class="fstep"><div class="fstep-num">1</div><div class="fstep-content"><h5>One Clear Goal</h5><p>You must know exactly what you're doing. "Work on project" won't cut it. "Write the opening paragraph of chapter 3" — that will.</p></div></div>
+      <div class="fstep"><div class="fstep-num">2</div><div class="fstep-content"><h5>Immediate Feedback</h5><p>You need to feel progress as you work. A musician hears the note. A coder sees the output. Create a way to see your progress in real time.</p></div></div>
+      <div class="fstep"><div class="fstep-num">3</div><div class="fstep-content"><h5>Slightly Stretched Skill</h5><p>The task must be just slightly beyond what feels comfortable — but not overwhelming. That sweet spot is where Flow lives.</p></div></div>
+      <div class="fstep"><div class="fstep-num">4</div><div class="fstep-content"><h5>Zero Interruptions for 20+ Minutes</h5><p>Flow takes about 15–20 minutes of unbroken focus to enter — and one notification destroys it instantly. Guard this window like it's sacred.</p></div></div>
+    </div>
+
+    <p style="font-family:sans-serif;font-size:.88rem;color:#6a8a9e;line-height:1.7;margin-top:1rem;">Every tradition has a name for it. Zen calls it <em>mushin</em>. Taoism calls it <em>wu wei</em>. The Vedic tradition calls it <em>samadhi</em>. Science just took 30 years to confirm what the ancients always knew: when you lose yourself completely in the work — the work becomes extraordinary.</p>
+  </div>
+
+  <!-- Wave bottom -->
+  <div class="flow-wave-bottom">
+    <svg viewBox="0 0 1440 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 20 C240 0,480 40,720 20 S1200 0,1440 20 V40 H0Z" fill="#faf7f0" opacity=".12"/>
+    </svg>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 6 ══════════════ -->
+<section id="ch6" class="chapter">
+  <div class="chapter-number">Chapter Six</div>
+  <h2 class="chapter-title">Breaking Paralysis — The Warrior's Secret</h2>
+  <blockquote class="chapter-quote">"Rise up. Do your work. This is the duty before you. Hesitation is the thief of great lives."</blockquote>
+  <div class="chapter-body">
+    <p>There is a form of paralysis that strikes even the most capable people. They know what they need to do. They have the ability to do it. But they cannot begin. They scroll, they plan, they research — anything except starting the real work.</p>
+    <p>This is not laziness. It is fear — fear of failure, fear of judgment, fear of producing something less than perfect.</p>
+    <div class="story-box">
+      <div class="story-label">📖 The Warrior Who Could Not Begin</div>
+      <p>Before the greatest battle of his life, the most powerful warrior of his time sat in his chariot between the two armies. His hands trembled. His bow slipped. A hundred reasons not to act flooded his mind.</p>
+      <p>His guide said: <em>"The hesitation you feel is not wisdom. It is weakness dressed as wisdom."</em></p>
+      <p>Then came the instruction: <strong>"Do not think of victory or defeat. Simply do what must be done, and do it completely."</strong></p>
+      <p>The warrior rose. He acted. The tide of everything changed — not because he was suddenly fearless, but because he chose action over paralysis.</p>
+    </div>
+    <div class="illustration">
+      <svg viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arr6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#c9972c" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <rect x="40" y="40" width="250" height="100" rx="8" fill="#fff0f0" stroke="#f0d0d0" stroke-width=".5"/>
+        <text x="165" y="68" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#c0392b" font-weight="600">THE PARALYSIS TRAP</text>
+        <text x="165" y="88" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Overthinking · Perfectionism · Fear</text>
+        <text x="165" y="122" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c0392b">Result: Nothing gets done</text>
+        <path d="M295 90 Q340 90 380 90" fill="none" stroke="#c9972c" stroke-width="2" marker-end="url(#arr6)"/>
+        <text x="340" y="78" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c9972c" font-weight="700">CHOOSE ACTION</text>
+        <rect x="385" y="40" width="255" height="100" rx="8" fill="#f0fff5" stroke="#a0d8b8" stroke-width=".5" class="float3"/>
+        <text x="512" y="68" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1a6b4a" font-weight="600">THE ACTION STATE</text>
+        <text x="512" y="88" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#555">Start imperfectly · Learn fast · Grow</text>
+        <text x="512" y="122" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1a6b4a">Result: Progress + Mastery</text>
+      </svg>
+    </div>
+
+    <div class="sci-box">
+      <div class="sci-label">Stanford University · Carleton University</div>
+      <p>Stanford research found that people who believed they could improve were far less likely to freeze when faced with a hard task. Separately, procrastination researchers found that the anxious feeling before starting a task disappears within 90 seconds of actually beginning it. The start is always the hardest part.</p>
+      <cite class="sci-cite">— Prof. Carol Dweck, Stanford · Prof. Timothy Pychyl, Carleton University</cite>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>The 2-Minute Rule</h4><p>Commit to doing just 2 minutes of the task. Starting is always the hardest part. Two minutes in, momentum usually takes over.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Ship Imperfect Work</h4><p>A done draft is infinitely more useful than a perfect plan that was never executed. Done beats perfect, every time.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Shrink the Task Until It Feels Easy</h4><p>Break it down until one part feels almost laughably small — then do that small part. Progress unlocks the next step.</p></div></div>
+    </div>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 7 ══════════════ -->
+<section id="ch7" class="chapter">
+  <div class="chapter-number">Chapter Seven</div>
+  <h2 class="chapter-title">Design Your Productive Environment</h2>
+  <blockquote class="chapter-quote">"The environment of a warrior is chosen deliberately. Nothing in it distracts. Everything in it inspires."</blockquote>
+  <div class="chapter-body">
+    <p>Your environment shapes your behavior more powerfully than willpower ever can. The people who succeed long-term don't rely on self-discipline alone — they <strong>design spaces that make focused work the natural default.</strong></p>
+    <div class="illustration">
+      <svg viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg">
+        <rect x="160" y="120" width="360" height="70" rx="4" fill="#e8d5b7" stroke="#c9972c" stroke-width="1"/>
+        <rect x="295" y="60" width="130" height="80" rx="4" fill="#1a1a2e" class="pulse" style="animation-duration:4s"/>
+        <rect x="305" y="68" width="110" height="64" rx="2" fill="#16213e"/>
+        <text x="360" y="104" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#c9972c">ONE TASK</text>
+        <rect x="353" y="140" width="14" height="15" rx="1" fill="#555"/>
+        <rect x="190" y="128" width="70" height="50" rx="3" fill="#fffbef" stroke="#c9972c" stroke-width=".5" class="float2"/>
+        <text x="225" y="155" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">Today's Goal</text>
+        <rect x="460" y="135" width="30" height="40" rx="4" fill="#eee" stroke="#ccc" stroke-width=".5"/>
+        <line x1="455" y1="130" x2="495" y2="180" stroke="#c0392b" stroke-width="2"/>
+        <line x1="495" y1="130" x2="455" y2="180" stroke="#c0392b" stroke-width="2"/>
+        <text x="475" y="192" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#c0392b">Phone OUT</text>
+        <ellipse cx="130" cy="160" rx="25" ry="20" fill="#1a6b4a" opacity=".7" class="float3"/>
+        <text x="340" y="210" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Clean desk · Natural light · One screen · Notebook · Phone away</text>
+      </svg>
+    </div>
+
+    <div class="sci-box">
+      <div class="sci-label">University of Texas, Austin</div>
+      <p>Researchers gave people cognitive tests with a phone on the desk — face-down and silent. Their scores dropped. When the phone was in another room entirely, scores improved measurably. The brain was quietly burning energy just by knowing the phone was nearby.</p>
+      <cite class="sci-cite">— Dr. Adrian Ward · University of Texas, Austin</cite>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>The Clean Desk Rule</h4><p>Before every deep work session, clear your desk completely. Leave only what you need for the current task. Clutter is visual noise.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Phone in Another Room</h4><p>Not silent — gone. Another room. Your brain will thank you the moment you start working.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>The Trigger Cue</h4><p>Create a physical ritual that signals "focus time": brewing tea, specific music, lighting a candle. Over weeks, your brain starts entering focus automatically when you begin the ritual.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Digital Environment Matters Too</h4><p>One browser tab. Social apps off the home screen. Website blockers active. Make the productive action the default, not the exception.</p></div></div>
+    </div>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 8 ══════════════ -->
+<section id="ch8" class="chapter">
+  <div class="chapter-number">Chapter Eight</div>
+  <h2 class="chapter-title">Time & Energy Mastery</h2>
+  <blockquote class="chapter-quote">"Manage your energy, not just your time. A fatigued mind wastes the hours that a rested mind would treasure."</blockquote>
+  <div class="chapter-body">
+    <p>Most productivity advice focuses on time management. But time is not your scarcest resource — <strong>energy is.</strong> Two hours of work done at peak energy produces more than six hours done in exhaustion.</p>
+    <div class="illustration">
+      <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 60 140 C 120 60,200 40,260 80 S 380 160,440 100 S 560 40,620 80" fill="none" stroke="#c9972c" stroke-width="2.5" stroke-dasharray="5 3" class="pulse"/>
+        <circle cx="200" cy="55" r="8" fill="#c9972c" class="glow-anim"/>
+        <circle cx="500" cy="70" r="8" fill="#c9972c" class="glow-anim"/>
+        <circle cx="350" cy="145" r="6" fill="#c0392b" opacity=".7"/>
+        <text x="200" y="38" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c9972c" font-weight="700">Peak #1 — Morning</text>
+        <text x="500" y="53" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c9972c" font-weight="700">Peak #2 — Late Afternoon</text>
+        <text x="350" y="165" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c0392b">Post-lunch dip (rest, walk, or light work)</text>
+        <line x1="55" y1="155" x2="630" y2="155" stroke="#eee" stroke-width="1"/>
+        <text x="80" y="172" font-family="sans-serif" font-size="9" fill="#aaa">6am</text>
+        <text x="200" y="172" font-family="sans-serif" font-size="9" fill="#aaa">9am</text>
+        <text x="330" y="172" font-family="sans-serif" font-size="9" fill="#aaa">1pm</text>
+        <text x="490" y="172" font-family="sans-serif" font-size="9" fill="#aaa">4pm</text>
+        <text x="600" y="172" font-family="sans-serif" font-size="9" fill="#aaa">8pm</text>
+      </svg>
+    </div>
+
+    <div class="sci-box">
+      <div class="sci-label">UC Berkeley Sleep Research Lab</div>
+      <p>UC Berkeley researchers found that after 17 hours without sleep, your brain performs at the same level as someone who is legally drunk. One missed night of quality sleep and your focus, memory, and decision-making all drop sharply — and you likely won't even notice. Sleep is not optional. It is the engine everything else runs on.</p>
+      <cite class="sci-cite">— Prof. Matthew Walker · UC Berkeley, Center for Human Sleep Science</cite>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Protect Sleep Above All</h4><p>7–8 hours of quality sleep is the foundation of every other productive habit. Set a fixed sleep time and honor it.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Match Work to Your Energy Level</h4><p>Peak energy = deep, creative, difficult work. Medium = admin and email. Low = reading and learning. Never schedule deep work during your energy trough.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Move Daily — Non-Negotiable</h4><p>30 minutes of physical movement daily upgrades your focus, mood, creativity, and sleep. It is the highest-return investment you can make in yourself.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h4>Eat to Think</h4><p>Heavy meals during work hours = sluggish mind. During your peak window, eat light. Save larger meals for after your main work is done.</p></div></div>
+    </div>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 9 ══════════════ -->
+<section id="ch9" class="chapter">
+  <div class="chapter-number">Chapter Nine</div>
+  <h2 class="chapter-title">The Consistency Code</h2>
+  <blockquote class="chapter-quote">"You have the right to work — but never to the fruits of your work alone. Do your duty without attachment to results, and the results will come."</blockquote>
+  <div class="chapter-body">
+    <p>Most people work only when they feel motivated. They work hard for a week, then burn out. They start strong, then stop when results don't come fast enough. They are <strong>result-dependent.</strong></p>
+    <p>The ones who build extraordinary lives show up whether they feel like it or not. They do the work, release attachment to the outcome, and trust that consistent effort always compounds.</p>
+    <div class="illustration">
+      <svg viewBox="0 0 680 210" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(60,40)">
+          <text x="0" y="0" font-family="sans-serif" font-size="8" fill="#aaa">M</text><text x="38" y="0" font-family="sans-serif" font-size="8" fill="#aaa">T</text><text x="76" y="0" font-family="sans-serif" font-size="8" fill="#aaa">W</text><text x="114" y="0" font-family="sans-serif" font-size="8" fill="#aaa">T</text><text x="152" y="0" font-family="sans-serif" font-size="8" fill="#aaa">F</text><text x="190" y="0" font-family="sans-serif" font-size="8" fill="#aaa">S</text><text x="228" y="0" font-family="sans-serif" font-size="8" fill="#aaa">S</text>
+          <rect x="-8" y="10" width="30" height="30" rx="4" fill="#1a6b4a" class="float"/><rect x="30" y="10" width="30" height="30" rx="4" fill="#1a6b4a" class="float2"/><rect x="68" y="10" width="30" height="30" rx="4" fill="#1a6b4a" class="float3"/><rect x="106" y="10" width="30" height="30" rx="4" fill="#1a6b4a" class="float"/><rect x="144" y="10" width="30" height="30" rx="4" fill="#1a6b4a" class="float2"/><rect x="182" y="10" width="30" height="30" rx="4" fill="#c9972c" opacity=".6"/><rect x="220" y="10" width="30" height="30" rx="4" fill="#c9972c" opacity=".6"/>
+          <rect x="-8" y="48" width="30" height="30" rx="4" fill="#1a6b4a" class="float3"/><rect x="30" y="48" width="30" height="30" rx="4" fill="#1a6b4a" class="float"/><rect x="68" y="48" width="30" height="30" rx="4" fill="#f0d0d0"/><text x="83" y="68" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#c0392b">✗</text><rect x="106" y="48" width="30" height="30" rx="4" fill="#1a6b4a" class="float2"/><rect x="144" y="48" width="30" height="30" rx="4" fill="#1a6b4a"/><rect x="182" y="48" width="30" height="30" rx="4" fill="#c9972c" opacity=".6"/><rect x="220" y="48" width="30" height="30" rx="4" fill="#c9972c" opacity=".6"/>
+          <rect x="-8" y="86" width="30" height="30" rx="4" fill="#1a6b4a"/><rect x="30" y="86" width="30" height="30" rx="4" fill="#1a6b4a" class="float3"/><rect x="68" y="86" width="30" height="30" rx="4" fill="#1a6b4a" class="float"/><rect x="106" y="86" width="30" height="30" rx="4" fill="#1a6b4a" class="float2"/><rect x="144" y="86" width="30" height="30" rx="4" fill="#1a6b4a"/><rect x="182" y="86" width="30" height="30" rx="4" fill="#c9972c" opacity=".6"/><rect x="220" y="86" width="30" height="30" rx="4" fill="#c9972c" opacity=".6"/>
+          <text x="7" y="32" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#fff">✓</text><text x="45" y="32" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#fff">✓</text>
+        </g>
+        <rect x="380" y="40" width="16" height="16" rx="3" fill="#1a6b4a"/><text x="402" y="53" font-family="sans-serif" font-size="9" fill="#555">Done</text>
+        <rect x="380" y="65" width="16" height="16" rx="3" fill="#c9972c" opacity=".6"/><text x="402" y="78" font-family="sans-serif" font-size="9" fill="#555">Rest day</text>
+        <rect x="380" y="90" width="16" height="16" rx="3" fill="#f0d0d0"/><text x="402" y="103" font-family="sans-serif" font-size="9" fill="#555">Missed (1 ok)</text>
+        <text x="480" y="140" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#c9972c" font-weight="700">The Chain Method</text>
+        <text x="480" y="158" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Don't break the chain. One miss is fine.</text>
+        <text x="480" y="174" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Two in a row is the start of a bad habit.</text>
+      </svg>
+    </div>
+
+    <div class="sci-box">
+      <div class="sci-label">University College London</div>
+      <p>Researchers tracked hundreds of people building new habits over 12 weeks. The real average? It took 66 days — not the "21 days" you've heard. And here's the part nobody tells you: missing one day made no difference at all to the final outcome. Missing two in a row did.</p>
+      <cite class="sci-cite">— Dr. Phillippa Lally · University College London</cite>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>The Chain Method</h4><p>Mark an X on a calendar every day you complete your most important habit. Rule: never miss twice. One missed day is recoverable. Two is the beginning of a new (bad) habit.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Work Without Attachment</h4><p>Focus entirely on the quality of your daily actions. Not on whether results have appeared yet. Trust the compound effect. Results come — in their own time.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Weekly Review</h4><p>Every Sunday, spend 30 minutes reviewing your week. What worked? What didn't? Adjust. This is the feedback loop that sharpens the system over time.</p></div></div>
+    </div>
+  </div>
+</section>
+<hr class="chapter-sep">
+
+<!-- ══════════════ CH 10 ══════════════ -->
+<section id="ch10" class="chapter">
+  <div class="chapter-number">Chapter Ten</div>
+  <h2 class="chapter-title">Your Complete Master System</h2>
+  <blockquote class="chapter-quote">"A disciplined mind brings peace, strength, and the satisfaction of a life truly lived."</blockquote>
+  <div class="chapter-body">
+    <p>Everything in this system comes together into one complete daily practice. You do not need to be perfect — you need to be <strong>consistent enough.</strong> Begin with the parts that feel most urgent, and add the rest week by week.</p>
+    <div class="illustration">
+      <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arrow-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#c9972c" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <circle cx="340" cy="160" r="55" fill="#1a1a2e" class="pulse" style="animation-duration:5s"/>
+        <text x="340" y="152" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c9972c" font-weight="700">THE MASTER</text>
+        <text x="340" y="167" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c9972c" font-weight="700">SYSTEM</text>
+        <rect x="20" y="30" width="110" height="48" rx="6" fill="#fffbef" stroke="#c9972c" stroke-width="1" class="float"/>
+        <text x="75" y="50" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c9972c" font-weight="700">Single-Point Focus</text>
+        <text x="75" y="65" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">One goal, one session</text>
+        <line x1="130" y1="65" x2="292" y2="130" stroke="#c9972c" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-m)"/>
+        <rect x="260" y="20" width="160" height="48" rx="6" fill="#fffbef" stroke="#c9972c" stroke-width="1" class="float2"/>
+        <text x="340" y="40" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1a6b4a" font-weight="700">Structured Daily Routine</text>
+        <text x="340" y="55" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">Rise · Work · Rest · Review</text>
+        <line x1="340" y1="68" x2="340" y2="105" stroke="#c9972c" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-m)"/>
+        <rect x="550" y="30" width="110" height="48" rx="6" fill="#fffbef" stroke="#c9972c" stroke-width="1" class="float3"/>
+        <text x="605" y="50" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c0392b" font-weight="700">Deep Work Blocks</text>
+        <text x="605" y="65" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">90 min, undisturbed</text>
+        <line x1="550" y1="65" x2="396" y2="128" stroke="#c9972c" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-m)"/>
+        <rect x="20" y="140" width="110" height="48" rx="6" fill="#fffbef" stroke="#c9972c" stroke-width="1" class="float"/>
+        <text x="75" y="160" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1a1a2e" font-weight="700">Mind Mastery</text>
+        <text x="75" y="175" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">Stillness + Urge Pause</text>
+        <line x1="130" y1="165" x2="285" y2="165" stroke="#c9972c" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-m)"/>
+        <rect x="550" y="140" width="110" height="48" rx="6" fill="#fffbef" stroke="#c9972c" stroke-width="1" class="float2"/>
+        <text x="605" y="160" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1a6b4a" font-weight="700">Environment</text>
+        <text x="605" y="175" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">Clean desk, no phone</text>
+        <line x1="550" y1="165" x2="395" y2="165" stroke="#c9972c" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-m)"/>
+        <rect x="80" y="245" width="130" height="48" rx="6" fill="#fffbef" stroke="#c9972c" stroke-width="1" class="float3"/>
+        <text x="145" y="265" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#c9972c" font-weight="700">Energy Management</text>
+        <text x="145" y="280" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">Sleep · Move · Eat</text>
+        <line x1="190" y1="245" x2="302" y2="208" stroke="#c9972c" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-m)"/>
+        <rect x="470" y="245" width="130" height="48" rx="6" fill="#fffbef" stroke="#c9972c" stroke-width="1" class="float"/>
+        <text x="535" y="265" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#1a6b4a" font-weight="700">Consistency Code</text>
+        <text x="535" y="280" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#888">Chain method + Review</text>
+        <line x1="470" y1="245" x2="378" y2="208" stroke="#c9972c" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow-m)"/>
+      </svg>
+    </div>
+    <div class="highlight">
+      <div class="highlight-label">🗓 YOUR 30-DAY LAUNCH PLAN</div>
+      <p><strong>Week 1:</strong> Morning stillness (10 min) + identify your daily bull's-eye. No other changes yet.<br>
+      <strong>Week 2:</strong> Add one 90-minute deep work block per day. Phone in another room during it.<br>
+      <strong>Week 3:</strong> Install the full daily schedule. Add the evening shutdown ritual and tomorrow's planning.<br>
+      <strong>Week 4:</strong> Add the weekly review. Run the full system. Adjust what needs adjusting.</p>
+    </div>
+    <p>And when you miss a day — because you will miss a day — <strong>return without drama.</strong> The warrior does not mourn the battle missed. He shows up for the next one.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h4>The Single Most Important Rule</h4><p>Show up daily. Not perfectly. Not brilliantly. Just consistently. Six months of daily imperfect action will change your life in ways that no single burst of perfect effort ever could.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Adapt, Don't Abandon</h4><p>When a part of the system isn't working, adjust it — don't throw the whole thing away. Productivity is a practice, not a destination.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h4>The Work Is the Reward</h4><p>When you find genuine satisfaction in the doing itself — not just in the results — you become unstoppable. This is when Flow stops being an event and becomes a way of life.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section id="final">
+  <h2>You Have Everything You Need</h2>
+  <p>The ancient wisdom was always here. Harvard, MIT, Stanford, and UCL confirmed it. The system is in your hands now. The only thing left is your decision to begin — today, imperfectly, completely.</p>
+  <p>Start with one thing. The smallest possible step. Then the next one.</p>
+  <p class="final-quote">"The mind is everything. What you think, you become. What you do consistently, you master. And when you lose yourself completely in the work — that is <em>Flow</em>. That is the path."</p>
+</section>
+
+<script>
+// ── Sidebar ──────────────────────────────────────────
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('on');
+}
+
+// ── Progress + active chapter ─────────────────────────
+(function(){
+  const bar = document.getElementById('progress-bar');
+  const ids = ['cover','ch1','ch2','ch3','ch4','ch5','flow-section','ch6','ch7','ch8','ch9','ch10'];
+  const links = document.querySelectorAll('#sidebar a');
+  let ticking = false;
+  window.addEventListener('scroll', function(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      const st = window.scrollY;
+      const dh = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      bar.style.width = Math.min(100, (st/dh)*100) + '%';
+      let cur = 'cover';
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if(el && el.getBoundingClientRect().top < 120) cur = id;
+      });
+      links.forEach(l => l.classList.toggle('active', l.getAttribute('href')==='#'+cur));
+      ticking = false;
+    });
+  });
+})();
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"8bb9a4ff338042ea94848359dbe1f60d","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
